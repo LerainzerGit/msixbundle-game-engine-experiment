@@ -40,6 +40,9 @@ jobs:
           New-PlaceholderPng "Assets/Wide310x150Logo.png" 310 150
           New-PlaceholderPng "Assets/SplashScreen.png" 620 300
 
+      # Throwaway self-signed cert per run, used only to sign the package during build.
+      # Xbox Dev Mode trusts dev-signed packages automatically, so nothing extra
+      # needs installing on console.
       - name: Generate signing certificate
         shell: pwsh
         run: |
@@ -54,7 +57,10 @@ jobs:
           $pwd = ConvertTo-SecureString -String "TempBuildPass123!" -Force -AsPlainText
           Export-PfxCertificate -Cert $cert -FilePath "GameEngine_TemporaryKey.pfx" -Password $pwd
 
-            - name: Restore NuGet packages
+      # MSBuild-based restore — required for PackageReference-style projects.
+      # (The old "nuget restore" command only handles packages.config and was
+      # silently failing to pull in the UWP reference assemblies.)
+      - name: Restore NuGet packages
         run: msbuild GameEngine.csproj /t:Restore /p:Configuration=Release /p:Platform=x64
 
       - name: Build and autosign package
@@ -75,6 +81,9 @@ jobs:
           $bundle = Get-ChildItem -Path "AppPackages" -Recurse -Filter "*.msixbundle" | Select-Object -First 1
           Copy-Item $bundle.FullName -Destination "GameEngine.msixbundle"
 
+      # Publishes (or overwrites) a rolling "latest" release with a stable asset URL —
+      # this is the URL you point Xbox Device Portal's "Add from URL" install at,
+      # since Edge on Xbox can't download files directly.
       - name: Publish release with msixbundle asset
         uses: softprops/action-gh-release@v2
         with:
