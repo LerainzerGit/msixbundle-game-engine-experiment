@@ -54,8 +54,8 @@ jobs:
           $pwd = ConvertTo-SecureString -String "TempBuildPass123!" -Force -AsPlainText
           Export-PfxCertificate -Cert $cert -FilePath "GameEngine_TemporaryKey.pfx" -Password $pwd
 
-      - name: Restore NuGet packages
-        run: nuget restore GameEngine.csproj -SolutionDirectory .
+            - name: Restore NuGet packages
+        run: msbuild GameEngine.csproj /t:Restore /p:Configuration=Release /p:Platform=x64
 
       - name: Build and autosign package
         run: >
