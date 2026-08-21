@@ -13,6 +13,9 @@
     <AppxBundle>Always</AppxBundle>
     <AppxBundlePlatforms>x64|ARM64</AppxBundlePlatforms>
     <PackageCertificateKeyFile>GameEngine_TemporaryKey.pfx</PackageCertificateKeyFile>
+
+    <!-- Fixes duplicate AssemblyInfo.cs attribute errors -->
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,5 +27,16 @@
     <AppxManifest Include="Package.appxmanifest">
       <SubType>Designer</SubType>
     </AppxManifest>
+  </ItemGroup>
+
+  <!-- Explicit reference to the Windows Runtime metadata itself.
+       Without this, Windows.ApplicationModel, Windows.UI, etc. don't resolve
+       even though TargetFramework is uap10.0.19041. -->
+  <ItemGroup>
+    <Reference Include="Windows">
+      <HintPath>$(MSBuildProgramFiles32)\Windows Kits\10\UnionMetadata\$(TargetPlatformVersion)\Windows.winmd</HintPath>
+      <IsWinMDFile>true</IsWinMDFile>
+      <Private>False</Private>
+    </Reference>
   </ItemGroup>
 </Project>
