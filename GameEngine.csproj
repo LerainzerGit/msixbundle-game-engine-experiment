@@ -1,56 +1,23 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-
+<Project Sdk="MSBuild.Sdk.Extras/3.0.23">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">x64</Platform>
-    <ProjectGuid>{7C4B8F1A-0000-4000-8000-000000000001}</ProjectGuid>
-    <OutputType>AppContainerExe</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>GameEngine</RootNamespace>
-    <AssemblyName>GameEngine</AssemblyName>
-    <DefaultLanguage>en-US</DefaultLanguage>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
     <TargetPlatformVersion>10.0.19041.0</TargetPlatformVersion>
     <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+    <TargetFramework>uap10.0.19041</TargetFramework>
     <MinimumVisualStudioVersion>14</MinimumVisualStudioVersion>
     <EnableDotNetNativeCompatibleProfile>true</EnableDotNetNativeCompatibleProfile>
-    <FileAlignment>512</FileAlignment>
-    <ProjectTypeGuids>{A5A43C5B-DE2A-4C0C-9213-0A381AF9435A};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <PackageCertificateKeyFile>GameEngine_TemporaryKey.pfx</PackageCertificateKeyFile>
-    <AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
+    <RootNamespace>GameEngine</RootNamespace>
+    <AssemblyName>GameEngine</AssemblyName>
+    <DefaultLanguage>en-US</DefaultLanguage>
+    <OutputType>AppContainerExe</OutputType>
     <AppxBundle>Always</AppxBundle>
-    <AppxBundlePlatforms>x64</AppxBundlePlatforms>
-    <AppxDefaultResourceQualifiers>en-US</AppxDefaultResourceQualifiers>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <PlatformTarget>x64</PlatformTarget>
-    <OutputPath>bin\x64\Release\</OutputPath>
-    <Optimize>true</Optimize>
-    <DefineConstants>TRACE;NETFX_CORE;WINDOWS_UAP</DefineConstants>
-    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <AppxBundlePlatforms>x64|ARM64</AppxBundlePlatforms>
+    <PackageCertificateKeyFile>GameEngine_TemporaryKey.pfx</PackageCertificateKeyFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Runtime" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Include="Game1.cs" />
-    <Compile Include="App.xaml.cs">
-      <DependentUpon>App.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ApplicationDefinition Include="App.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </ApplicationDefinition>
+    <PackageReference Include="MonoGame.Framework.WindowsUniversal" Version="3.8.1.303" />
+    <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.1.303" />
   </ItemGroup>
 
   <ItemGroup>
@@ -60,14 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform" Version="6.2.14" />
-    <PackageReference Include="MonoGame.Framework.WindowsUniversal" Version="3.8.1.303" />
-    <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.1.303" />
+    <Compile Include="Game1.cs" />
+    <Compile Include="Program.cs" />
   </ItemGroup>
-
-  <PropertyGroup>
-    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">15.0</VisualStudioVersion>
-  </PropertyGroup>
-
-  <Import Project="$(MSBuildExtensionsPath)\Microsoft\WindowsXaml\v$(VisualStudioVersion)\Microsoft.Windows.UI.Xaml.CSharp.targets" />
 </Project>
