@@ -16,6 +16,9 @@
 
     <!-- Fixes duplicate AssemblyInfo.cs attribute errors -->
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+
+    <!-- Fixes CS8370: UAP projects default to old C# language versions -->
+    <LangVersion>9.0</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -29,9 +32,6 @@
     </AppxManifest>
   </ItemGroup>
 
-  <!-- Explicit reference to the Windows Runtime metadata itself.
-       Without this, Windows.ApplicationModel, Windows.UI, etc. don't resolve
-       even though TargetFramework is uap10.0.19041. -->
   <ItemGroup>
     <Reference Include="Windows">
       <HintPath>$(MSBuildProgramFiles32)\Windows Kits\10\UnionMetadata\$(TargetPlatformVersion)\Windows.winmd</HintPath>
