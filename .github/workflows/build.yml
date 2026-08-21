@@ -57,11 +57,22 @@ jobs:
           $pwd = ConvertTo-SecureString -String "TempBuildPass123!" -Force -AsPlainText
           Export-PfxCertificate -Cert $cert -FilePath "GameEngine_TemporaryKey.pfx" -Password $pwd
 
-      # MSBuild-based restore — required for PackageReference-style projects.
-      # (The old "nuget restore" command only handles packages.config and was
-      # silently failing to pull in the UWP reference assemblies.)
       - name: Restore NuGet packages
-        run: msbuild GameEngine.csproj /t:Restore /p:Configuration=Release /p:Platform=x64
+        run: nuget restore GameEngine.csproj -SolutionDirectory .
+
+      # Detect whichever Windows SDK version is actually installed on this
+      # runner image, since hardcoding 10.0.19041.0 breaks when the image updates.
+      - name: Detect installed Windows SDK version
+        shell: pwsh
+        run: |
+          $kitsPath = "C:\Program Files (x86)\Windows Kits\10\UnionMetadata"
+          $versions = Get-ChildItem $kitsPath -Directory | Sort-Object Name -Descending
+          if ($versions.Count -eq 0) {
+            throw "No Windows SDK UnionMetadata folders found under $kitsPath"
+          }
+          $latest = $versions[0].Name
+          Write-Host "Using Windows SDK version: $latest"
+          echo "WIN_SDK_VERSION=$latest" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
 
       - name: Build and autosign package
         run: >
@@ -74,6 +85,8 @@ jobs:
           /p:AppxPackageSigningEnabled=true
           /p:PackageCertificateKeyFile=GameEngine_TemporaryKey.pfx
           /p:PackageCertificatePassword=TempBuildPass123!
+          /p:TargetPlatformVersion=${{ env.WIN_SDK_VERSION }}
+          /p:TargetPlatformMinVersion=${{ env.WIN_SDK_VERSION }}
 
       - name: Locate built bundle
         shell: pwsh
@@ -81,9 +94,6 @@ jobs:
           $bundle = Get-ChildItem -Path "AppPackages" -Recurse -Filter "*.msixbundle" | Select-Object -First 1
           Copy-Item $bundle.FullName -Destination "GameEngine.msixbundle"
 
-      # Publishes (or overwrites) a rolling "latest" release with a stable asset URL —
-      # this is the URL you point Xbox Device Portal's "Add from URL" install at,
-      # since Edge on Xbox can't download files directly.
       - name: Publish release with msixbundle asset
         uses: softprops/action-gh-release@v2
         with:
