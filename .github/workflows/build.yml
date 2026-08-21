@@ -61,14 +61,18 @@ jobs:
         run: nuget restore GameEngine.csproj -SolutionDirectory .
 
       # Detect whichever Windows SDK version is actually installed on this
-      # runner image, since hardcoding 10.0.19041.0 breaks when the image updates.
+      # runner image. Filters to folder names that actually look like a version
+      # number (e.g. 10.0.19041.0) to skip non-version folders like "Facade".
       - name: Detect installed Windows SDK version
         shell: pwsh
         run: |
           $kitsPath = "C:\Program Files (x86)\Windows Kits\10\UnionMetadata"
-          $versions = Get-ChildItem $kitsPath -Directory | Sort-Object Name -Descending
+          $versions = Get-ChildItem $kitsPath -Directory |
+            Where-Object { $_.Name -match '^\d+\.\d+\.\d+\.\d+$' } |
+            Sort-Object { [Version]$_.Name } -Descending
+
           if ($versions.Count -eq 0) {
-            throw "No Windows SDK UnionMetadata folders found under $kitsPath"
+            throw "No valid Windows SDK version folders found under $kitsPath"
           }
           $latest = $versions[0].Name
           Write-Host "Using Windows SDK version: $latest"
