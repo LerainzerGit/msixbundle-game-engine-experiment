@@ -25,9 +25,4 @@
       <SubType>Designer</SubType>
     </AppxManifest>
   </ItemGroup>
-
-  <ItemGroup>
-    <Compile Include="Game1.cs" />
-    <Compile Include="Program.cs" />
-  </ItemGroup>
 </Project>
