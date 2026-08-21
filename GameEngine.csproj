@@ -39,4 +39,13 @@
       <Private>False</Private>
     </Reference>
   </ItemGroup>
+
+  <!-- Ensures the placeholder logo PNGs get packaged into the AppX payload,
+       since SDK-style projects don't auto-include images as Content the way
+       classic UWP project files do. -->
+  <ItemGroup>
+    <Content Include="Assets\**\*.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
 </Project>
