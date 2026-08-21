@@ -29,7 +29,7 @@
   </Resources>
 
   <Applications>
-    <Application Id="App" Executable="$targetnametoken$.exe" EntryPoint="GameEngine.App">
+    <Application Id="App" Executable="$targetnametoken$.exe" EntryPoint="GameEngine.Program">
       <uap:VisualElements
         DisplayName="Athenos Game Engine"
         Description="Athenos Games engine runtime and in-console editor"
