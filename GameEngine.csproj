@@ -33,7 +33,6 @@
     <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
 
-  <!-- Core WinRT / UWP references — this is what the SDK-style project was missing -->
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Runtime" />
@@ -61,6 +60,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform" Version="6.2.14" />
     <PackageReference Include="MonoGame.Framework.WindowsUniversal" Version="3.8.1.303" />
     <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.1.303" />
   </ItemGroup>
@@ -69,6 +69,5 @@
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">15.0</VisualStudioVersion>
   </PropertyGroup>
 
-  <!-- These targets are what actually bring in the Windows.* WinRT namespaces -->
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\WindowsXaml\v$(VisualStudioVersion)\Microsoft.Windows.UI.Xaml.CSharp.targets" />
 </Project>
