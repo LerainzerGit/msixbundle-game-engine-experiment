@@ -1,0 +1,84 @@
+name: Build, Autosign, and Release MSIXBUNDLE
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      # Generates solid-color placeholder logos required by the manifest.
+      # Nothing binary needs to exist in the repo — these are created fresh every build.
+      - name: Generate placeholder assets
+        shell: pwsh
+        run: |
+          Add-Type -AssemblyName System.Drawing
+          New-Item -ItemType Directory -Force -Path "Assets" | Out-Null
+
+          function New-PlaceholderPng($path, $w, $h) {
+            $bmp = New-Object System.Drawing.Bitmap $w, $h
+            $g = [System.Drawing.Graphics]::FromImage($bmp)
+            $g.Clear([System.Drawing.Color]::FromArgb(255, 20, 20, 30))
+            $g.Dispose()
+            $bmp.Save($path, [System.Drawing.Imaging.ImageFormat]::Png)
+            $bmp.Dispose()
+          }
+
+          New-PlaceholderPng "Assets/StoreLogo.png" 50 50
+          New-PlaceholderPng "Assets/Square150x150Logo.png" 150 150
+          New-PlaceholderPng "Assets/Square44x44Logo.png" 44 44
+          New-PlaceholderPng "Assets/Wide310x150Logo.png" 310 150
+          New-PlaceholderPng "Assets/SplashScreen.png" 620 300
+
+      - name: Generate signing certificate
+        shell: pwsh
+        run: |
+          $cert = New-SelfSignedCertificate `
+            -Type Custom `
+            -Subject "CN=Athenos Games" `
+            -KeyUsage DigitalSignature `
+            -FriendlyName "GameEngine Autosign Cert" `
+            -CertStoreLocation "Cert:\CurrentUser\My" `
+            -TextExtension @("2.5.29.37={text}1.3.6.1.5.5.7.3.3", "2.5.29.19={text}")
+
+          $pwd = ConvertTo-SecureString -String "TempBuildPass123!" -Force -AsPlainText
+          Export-PfxCertificate -Cert $cert -FilePath "GameEngine_TemporaryKey.pfx" -Password $pwd
+
+      - name: Restore NuGet packages
+        run: nuget restore GameEngine.csproj -SolutionDirectory .
+
+      - name: Build and autosign package
+        run: >
+          msbuild GameEngine.csproj
+          /p:Configuration=Release
+          /p:Platform=x64
+          /p:AppxBundlePlatforms="x64"
+          /p:AppxBundle=Always
+          /p:UapAppxPackageBuildMode=SideloadOnly
+          /p:AppxPackageSigningEnabled=true
+          /p:PackageCertificateKeyFile=GameEngine_TemporaryKey.pfx
+          /p:PackageCertificatePassword=TempBuildPass123!
+
+      - name: Locate built bundle
+        shell: pwsh
+        run: |
+          $bundle = Get-ChildItem -Path "AppPackages" -Recurse -Filter "*.msixbundle" | Select-Object -First 1
+          Copy-Item $bundle.FullName -Destination "GameEngine.msixbundle"
+
+      - name: Publish release with msixbundle asset
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: Latest Build
+          body: Auto-built and autosigned by GitHub Actions.
+          files: GameEngine.msixbundle
